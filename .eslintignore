@@ -1,0 +1,7 @@
+/build/
+/config/
+/src/assets/iconfont
+/src/plugin/iviewPlus
+/dist/
+/src/utils/verification.js
+/*.js
