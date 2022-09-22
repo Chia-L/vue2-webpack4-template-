@@ -12,6 +12,8 @@ import 'vxe-table/lib/style.css'
 /* import '@/assets/iconfont/iconfont.woff'
 import '@/assets/iconfont/iconfont.ttf'
 import '@/assets/iconfont/iconfont.css' */
+import '@/assets/less/comm.less'
+import '@/assets/less/global.less'
 import ViewUI from 'view-design'
 import Element from 'element-ui'
 import 'xe-utils'

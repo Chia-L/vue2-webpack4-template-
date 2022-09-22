@@ -9,6 +9,10 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 // 引入package文件
 const packageConfig = require('../package.json')
 
+/*const resolve = dir => {
+  return path.join(__dirname, '..', dir)
+}*/
+
 
 exports.assetsPath = function (_path) {
   // 如果是生产环境使用build属性的assetsSubDirectory属性值，否则使用dev属性的assetsSubDirectory属性值
@@ -57,6 +61,18 @@ exports.cssLoaders = options => {
           sourceMap: options.sourceMap
         }) // Object.assign是es6的方法，合并loader参数对象的，浅拷贝
       })
+      if (loader === 'less') {
+        loaders.push(
+          {
+            loader: 'sass-resources-loader',
+            options: {
+              resources: [
+                path.resolve(__dirname, '../src/assets/less/global.less'), //定义全局变量的文件路径
+              ]
+            }
+          }
+        )
+      }
     }
 
     if (options.extract) {
