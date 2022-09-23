@@ -14,6 +14,7 @@ import '@/assets/iconfont/iconfont.ttf'
 import '@/assets/iconfont/iconfont.css' */
 import '@/assets/less/comm.less'
 import '@/assets/less/global.less'
+import 'amfe-flexible'
 import ViewUI from 'view-design'
 import Element from 'element-ui'
 import 'xe-utils'

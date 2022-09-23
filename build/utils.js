@@ -53,7 +53,7 @@ exports.cssLoaders = options => {
     // 将上面的基础cssLoader、postcssLoader，配置放在一个数组里面
     const loaders = options.usePostCSS ? [cssLoader, postcssLoader] : [cssLoader]
 
-    if (loader) {
+    if (loader && loader) {
       // 如果该函数传递了单独的loader就加到这个loaders数组里面，这个loader可能是less,sass之类的
       loaders.push({
         loader: loader + '-loader', // 加载对应的loader

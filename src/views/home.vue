@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="a">
     hello world
   </div>
 </template>
@@ -10,5 +10,9 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
+<style>
+.a {
+  width: 400px;
+  font-size: 16px;
+}
 </style>

@@ -1,9 +1,17 @@
-import Home from '@/views/home'
+import Layout from '@/views/Layout'
+import Home from '@/views/Home'
 const constantRoutesMap = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Layout',
+    component: Layout,
+    redirect: '/home',
+    children: [
+      {
+        path: 'home',
+        component: Home
+      }
+    ]
   }
 ]
 const asyncRoutes = []
