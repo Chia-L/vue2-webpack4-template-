@@ -8,6 +8,6 @@ module.exports = {
       selectorBlackList: [], //要忽略并保留为px的选择器
       mediaQuery: false, //（布尔值）允许在媒体查询中转换px。
       minPixelValue: 1 //设置要替换的最小像素值
-    }),
+    })
   ]
 }

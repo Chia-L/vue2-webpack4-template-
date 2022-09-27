@@ -54,6 +54,6 @@ module.exports = {
     bundleAnalyzerReport: process.env.npm_config_report
   },
   absoluteCachePath: (name) => {
-    return path.resolve('/cache/migrate', name)
+    return path.resolve('/cache/migrate_yun', name)
   }
 }

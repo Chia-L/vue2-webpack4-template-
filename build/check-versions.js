@@ -8,7 +8,7 @@ const shell = require('shelljs') //用来执行Unix系统命令
 
 
 // 通过 child_process 模块新建子进程，从而执行 Unix 系统命令
-const exec = cmd => require('child_process').execSync(cmd).toString().trim()
+const exec = cmd => (require('child_process').execSync(cmd).toString().trim())
 
 // 版本需求列表
 const versionRequirements = [
@@ -23,7 +23,7 @@ const versionRequirements = [
 if (shell.which('npm')) {
   versionRequirements.push({
     name: 'npm',
-    currentVersion: exec('npm  --version'), //当前npm的版本
+    currentVersion: exec('npm --version'), //当前npm的版本
     versionRequirement: packageConfig.engines.npm // 项目需要的npm版本
   })
 }
@@ -33,7 +33,7 @@ module.exports = function () {
   const warnings = [] // 警告列表
 
   versionRequirements.forEach(mod => {
-    if (semver.satisfies(mod.currentVersion, mod.versionRequirement)) {
+    if (!semver.satisfies(mod.currentVersion, mod.versionRequirement)) {
       // 如果版本号不符合package.json文件中指定的版本号，就执行下面的代码
       warnings.push(mod.name + ': ' +
         chalk.red(mod.currentVersion) + ' should be ' +
