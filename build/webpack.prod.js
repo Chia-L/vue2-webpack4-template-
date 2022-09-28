@@ -41,7 +41,8 @@ const webpackConfig = merge(baseWebpackConfig, {
     // 利用DefinePlugin插件，定义process.env环境变量为'production'
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"production"'
+        NODE_ENV: '"production"',
+        VUE_APP_BASE_API_LOCAL: '"/api"'
       }
     }),
     // UglifyJsPlugin插件是专门用来压缩js文件的

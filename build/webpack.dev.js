@@ -55,7 +55,9 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     // DefinePlugin内置webpack插件，专门用来定义全局变量的，下面定义一个全局变量 process.env
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"development"'
+        NODE_ENV: '"development"',
+        VUE_APP_BASE_API_LOCAL: '"/local-api"',
+        VUE_APP_BASE_API_PROXY: '"/proxy-api"',
       }
     }),
     new webpack.HotModuleReplacementPlugin(),

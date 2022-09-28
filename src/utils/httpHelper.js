@@ -69,10 +69,31 @@ class RetryCnt {
   }
 }
 
-  /**
+function fetchBaseURL(mockType) {
+  let baseURL = process.env.VUE_APP_BASE_API_LOCAL
+  if (process.env.NODE_ENV === 'development') {
+    if (mockType === 'local' || !mockType) {
+      baseURL = process.env.VUE_APP_BASE_API_LOCAL
+    } else if (mockType === 'proxy') {
+      baseURL = process.env.VUE_APP_BASE_API_PROXY
+    }
+  }
+
+  return baseURL
+}
+
+/**
  *
+ * @param url
+ * @param method
+ * @param data
+ * @param cb
+ * @param params
+ * @param mockType 开发模式有意义
+ *        local: 请求本地服务（默认）
+ *        proxy: 请求由代理转发
  */
-export function httpHelper(url, method, data, cb, params) {
+export function httpHelper(url, method, data, cb, params, mockType) {
   let key = method + url
   let retryCnt = new RetryCnt
 
@@ -150,6 +171,7 @@ export function httpHelper(url, method, data, cb, params) {
   const options = {
     url: '',
     method: method,
+    baseURL: fetchBaseURL(mockType),
     // url参数使用 'GET', 'DELETE'
     params: method === ['GET', 'DELETE'].includes(method.toString().toUpperCase()) ? data : null,
     // 请求主体只适用于这些请求方法 'PUT', 'POST', 和 'PATCH'
