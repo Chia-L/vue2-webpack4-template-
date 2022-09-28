@@ -47,6 +47,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     publicPath: config.dev.assetsPublicPath,
     proxy: config.dev.proxyTable,
     quiet: true, // 闭所有的错误日志记录，将webpack配置静默选项设置为true, 使用FriendlyErrorsPlugin插件，必须设置为true
+    after: config.dev.after,
     watchOptions: {
       poll: config.dev.poll,
     }
@@ -57,7 +58,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       'process.env': {
         NODE_ENV: '"development"',
         VUE_APP_BASE_API_LOCAL: '"/local-api"',
-        VUE_APP_BASE_API_PROXY: '"/proxy-api"',
+        VUE_APP_BASE_API_PROXY: '"/proxy-api"'
       }
     }),
     new webpack.HotModuleReplacementPlugin(),

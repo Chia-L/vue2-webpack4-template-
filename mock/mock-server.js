@@ -23,7 +23,7 @@ function registerRoutes(app) {
   //      res.send('{}')
   //   })
   for (const mock of mocksForServer) {
-    app[mock.type](mock.url, mock.response)
+    app[mock.type.toLowerCase()](mock.url, mock.response)
     mockLastIndex = app._router.stack.length
   }
 
@@ -47,7 +47,7 @@ function unregisterRoutes() {
 // mock 转换成 app 能处理的请求
 const responseFake = (url, type, respond) => {
   return {
-    url: new RegExp(`${process.env.VUE_APP_BASE_API}${url}`),
+    url: new RegExp(`^/local-api${url}$`),
     type: type || 'get',
     response(req, res) {
       console.log('request invoke:' + req.path)

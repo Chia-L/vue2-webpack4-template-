@@ -1,3 +1,5 @@
-const mocks = []
+const log = require('./logs')
 
-export default mocks
+module.exports = [
+  ...log
+]
