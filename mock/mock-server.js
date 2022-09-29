@@ -11,7 +11,7 @@ function registerRoutes(app) {
   let mockLastIndex
 
   // mock 描述请求响应: {url, type, response}
-  const { default: mocks } = require('./templates')
+  const mocks = require('./templates')
 
   // 封装 mock，便于注册到 app 路由中
   const mocksForServer = mocks.map(route => {
@@ -85,7 +85,6 @@ module.exports = app => {
         const mockRoutes = registerRoutes(app)
         mockRoutesLength = mockRoutes.mockRoutesLength
         mockStartIndex = mockRoutes.mockStartIndex
-
         console.log(chalk.magentaBright(`\n > Mock Server hot reload success! changed  ${path}`))
       } catch (error) {
         console.log(chalk.redBright(error))

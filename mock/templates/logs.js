@@ -30,6 +30,7 @@ const mockData = Mock.mock({
 const rehearsals = mockData.rehearsals
 
 module.exports = [
+  // 迁移汇总表
   {
     url: '/api/report/get_migration_report',
     type: 'POST',

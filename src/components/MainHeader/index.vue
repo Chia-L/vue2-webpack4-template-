@@ -1,10 +1,10 @@
 <template>
-  <header>
-    <div>
-      <img src="" alt="" v-if="imgUrl">
+  <header class="flex align-items-center">
+    <div class="justify-content-start">
+      <img :src="imgUrl" alt="" v-if="imgUrl">
       <span v-text="title"></span>
     </div>
-    <slot name="right"></slot>
+    <slot name="right" class="justify-content-end"></slot>
   </header>
 </template>
 
@@ -28,6 +28,7 @@ export default {
 @import "../../assets/less/global";
 header {
   height: @MainHeaderHeight;
-  background-color: @MainBkColor;
+  background-color: @MainHeaderColor;
+  padding: 0 20px;
 }
 </style>

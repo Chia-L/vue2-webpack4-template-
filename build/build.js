@@ -2,8 +2,6 @@
 
 require('./check-versions')() // 检查node、npm版本
 
-process.env.NODE_ENV = 'production'
-
 //优雅的终端微调器 打包开始提示对cli进行输出一个带spinner的文案，告诉用户正在打包中
 const ora = require('ora')
 // 以包的形式包装rm -rf命令，就是用来删除文件和文件夹的，不管文件夹是否为空，都可以删除。

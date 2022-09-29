@@ -8,7 +8,7 @@ const shell = require('shelljs') //用来执行Unix系统命令
 
 
 // 通过 child_process 模块新建子进程，从而执行 Unix 系统命令
-const exec = cmd => (require('child_process').execSync(cmd).toString().trim())
+const exec = cmd => require('child_process').execSync(cmd).toString().trim()
 
 // 版本需求列表
 const versionRequirements = [

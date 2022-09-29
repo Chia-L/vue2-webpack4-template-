@@ -3,7 +3,7 @@
 const path = require('path')
 
 // env = "development" 时，代理服务器域名地址
-const proxyUrl = 'http://172.16.5.108'
+const proxyUrl = ''
 
 module.exports = {
   // 开发服务器配置
@@ -21,12 +21,11 @@ module.exports = {
         changeOrigin: true,
         // 重写接口
         pathRewrite: { [`^${process.env.VUE_APP_BASE_API_PROXY}`]: "" }
-      }
+      },
     },
     // 开发服务器的配置
     host: 'localhost', // 能被process.env.HOST重写
     port: 8080, // 能被process.env.PORT重写，如何端口被占用，将会使用一个空闲的端口
-    open: true,
     after: require('../mock/mock-server'),
     autoOpenBrowser: false,
     errorOverlay: true,

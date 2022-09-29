@@ -9,7 +9,7 @@ const CancelToken = axios.CancelToken
  * @param resolve
  * @param reject
  */
-function checkResAndResolve(res, resolve, reject) {
+export function checkResAndResolve(res, resolve, reject) {
   try {
     checkRes(res)
     resolve(res)
@@ -23,7 +23,7 @@ function checkResAndResolve(res, resolve, reject) {
  * @param res
  * @returns {*}
  */
-function checkRes(res) {
+export function checkRes(res) {
   if (res === null) {
     throw new Error('serve response null')
   }
@@ -69,6 +69,11 @@ class RetryCnt {
   }
 }
 
+/**
+ * 设置axios参数options的baseURL值
+ * @param mockType
+ * @returns {string}
+ */
 function fetchBaseURL(mockType) {
   let baseURL = process.env.VUE_APP_BASE_API_LOCAL
   if (process.env.NODE_ENV === 'development') {
@@ -90,8 +95,8 @@ function fetchBaseURL(mockType) {
  * @param cb
  * @param params
  * @param mockType 开发模式有意义
- *        local: 请求本地服务（默认）
- *        proxy: 请求由代理转发
+ *           local: 请求本地服务（默认）
+ *           proxy: 请求由代理转发
  */
 export function httpHelper(url, method, data, cb, params, mockType) {
   let key = method + url
@@ -169,7 +174,7 @@ export function httpHelper(url, method, data, cb, params, mockType) {
   }
 
   const options = {
-    url: '',
+    url: url,
     method: method,
     baseURL: fetchBaseURL(mockType),
     // url参数使用 'GET', 'DELETE'
@@ -260,7 +265,7 @@ function getResBodyMsgType(r) {
  * @param opts {url, method, data, cb, params}
  * @returns {Promise<unknown>}
  */
-function httpApi(opts) {
+export function httpApi(opts) {
   function getMsgRender(response, msgInst) {
     let body = response.data
     let opSync = response.sync
@@ -310,7 +315,7 @@ function httpApi(opts) {
   }
 
   return new Promise(function (resolve, reject) {
-    httpHelper( opts.url, opts.method, opts.data, opts.params, function (res, params, response) {
+    httpHelper(opts.url, opts.method, opts.data, opts.params, function (res, params, response) {
       try {
         checkResponseMsg(response)
         resolve(response.data.data)
@@ -321,3 +326,9 @@ function httpApi(opts) {
   })
 }
 
+export default {
+  checkResAndResolve,
+  checkRes,
+  httpHelper,
+  httpApi
+}
