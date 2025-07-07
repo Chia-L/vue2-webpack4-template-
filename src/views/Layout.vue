@@ -1,6 +1,10 @@
 <template>
   <div id="page-main">
-    <main-header img-url="/public/images/logo.png"></main-header>
+    <main-header img-url="/public/images/logo.png">
+      <template #right>
+        <languages></languages>
+      </template>
+    </main-header>
     <main class="flex">
       <Menu theme="dark"
             :active-name="curMenu"
@@ -52,6 +56,7 @@
 
 <script>
 import MainHeader from '@/components/MainHeader'
+import Languages from '@/components/Languages'
 import UseSvg from '@/components/UseSvg'
 import utils from '@/utils/utils'
 import { httpHelper } from '@/utils/httpHelper'
@@ -59,6 +64,7 @@ export default {
   name: 'Layout',
   components: {
     MainHeader,
+    Languages,
     UseSvg
   },
   data() {

@@ -1,5 +1,5 @@
 <template>
-  <header class="flex align-items-center">
+  <header class="flex align-items-center" style="justify-content: space-between">
     <div class="justify-content-start">
       <img :src="imgUrl" alt="" v-if="imgUrl">
       <span v-text="title"></span>

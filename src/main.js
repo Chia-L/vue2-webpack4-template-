@@ -20,12 +20,22 @@ import Element from 'element-ui'
 import 'xe-utils'
 import VXETable from 'vxe-table'
 import '@/assets/iconfont/iconfont.js'
+// 国际化
+import i18n from '@/i18n'
 
 // 自己的库
+Vue.use(ViewUI, {
+  i18n: (path, options) => i18n.t(path, options)
+})
+Vue.use(Element, {
+  i18n: (path, options) => i18n.t(path, options)
+})
 
-Vue.use(ViewUI)
-Vue.use(Element)
 Vue.use(VXETable)
+VXETable.setup({
+  i18n: (key, args) => i18n.t(key, args)
+})
+
 Vue.use(VueCookies)
 
 Vue.config.productionTip = false
@@ -39,6 +49,7 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App),
   components: { App },
   template: '<App/>'
