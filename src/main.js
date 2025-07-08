@@ -23,14 +23,17 @@ import '@/assets/iconfont/iconfont.js'
 // 国际化
 import i18n from '@/i18n'
 
-// 自己的库
+// iView 国际化
 Vue.use(ViewUI, {
   i18n: (path, options) => i18n.t(path, options)
 })
+
+// element 国际化
 Vue.use(Element, {
   i18n: (path, options) => i18n.t(path, options)
 })
 
+// vxeTable 国际化
 Vue.use(VXETable)
 VXETable.setup({
   i18n: (key, args) => i18n.t(key, args)
