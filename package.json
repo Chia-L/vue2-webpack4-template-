@@ -4,7 +4,8 @@
   "description": "this is a migrate cloud",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.js",
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "t": "node i18n-tool/tool.js --config ./i18n-extract.config.js"
   },
   "dependencies": {
     "amfe-flexible": "^2.2.1",
