@@ -35,11 +35,63 @@ function loadConfig(configPath) {
   }
 }
 
+// 读取现有语言包，建立文本到键的映射
+async function loadExistingTranslations(config) {
+  const textToKeyMap = new Map()
+
+  try {
+    // 确保输出目录存在
+    await fs.access(config.outputDir)
+
+    // 读取所有语言文件
+    const langFiles = await fs.readdir(config.outputDir)
+
+    for (const langFile of langFiles) {
+      if (langFile.endsWith('.js')) {
+        const langFilePath = path.join(config.outputDir, langFile)
+        const content = await fs.readFile(langFilePath, 'utf-8')
+
+        // 简单解析语言包内容，提取键值对
+        const keyValueRegex = /'([^']+)':\s*'([^']+)'/g
+        let match
+
+        while ((match = keyValueRegex.exec(content)) !== null) {
+          const key = match[1]
+          const text = match[2]
+
+          // 只在中文语言包中建立映射
+          if (langFile.startsWith('zh-CN')) {
+            // 如果文本已经存在，但键不同，记录警告
+            if (textToKeyMap.has(text) && textToKeyMap.get(text) !== key) {
+              console.warn(`发现重复文本 "${text}" 有不同的键: ${textToKeyMap.get(text)} 和 ${key}`)
+            }
+
+            // 优先使用已存在的映射
+            if (!textToKeyMap.has(text)) {
+              textToKeyMap.set(text, key)
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`已从现有语言包加载 ${textToKeyMap.size} 个翻译项`)
+  } catch (error) {
+    // 如果目录不存在或读取失败，忽略错误，继续使用空映射
+    console.log('未发现现有语言包，将创建新的语言包')
+  }
+
+  return textToKeyMap
+}
+
 // 主函数
 async function main() {
   try {
     const configPath = getConfigPath()
     const config = loadConfig(configPath)
+
+    // 加载现有翻译映射
+    const textToKeyMap = await loadExistingTranslations(config)
 
     // 确保输出目录存在
     await fs.mkdir(config.outputDir, { recursive: true })
@@ -47,23 +99,23 @@ async function main() {
     // 初始化语言包
     const langFiles = {}
     config.languages.forEach(lang => {
-      const langPath = path.join(config.outputDir, `${lang === 'en-US' ? 'en' : lang}.js`)
-      let existingContent = {}
+      const langPath = path.join(config.outputDir, `${lang}.js`);
+      let existingContent = {};
       // 读取已有语言包内容（若存在）
       if (require('fs').existsSync(langPath)) {
         try {
           // 注意：需确保语言包导出格式为CommonJS（或调整导入方式）
-          existingContent = require(langPath).default
+          existingContent = require(langPath).default;
         } catch (e) {
-          console.warn(`读取已有语言包 ${langPath} 失败，将重新创建`)
-          existingContent = {}
+          console.warn(`读取已有语言包 ${langPath} 失败，将重新创建`);
+          existingContent = {};
         }
       }
       langFiles[lang] = {
         content: existingContent, // 初始化时载入已有翻译
         path: langPath
-      }
-    })
+      };
+    });
 
     // 扫描文件
     const files = await scanFiles(config)
@@ -72,7 +124,7 @@ async function main() {
     // 处理每个文件
     let processedCount = 0
     for (const file of files) {
-      await processFile(file, langFiles, config)
+      await processFile(file, langFiles, config, textToKeyMap)
       processedCount++
       console.log(`已处理 ${processedCount}/${files.length}: ${file}`)
     }
@@ -101,15 +153,18 @@ async function scanFiles(config) {
 }
 
 // 处理单个文件
-async function processFile(filePath, langFiles, config) {
+async function processFile(filePath, langFiles, config, textToKeyMap) {
   try {
     const content = await fs.readFile(filePath, 'utf-8')
-    const { newContent, keys } = extractChinese(content, filePath, config)
+    const { newContent, keys } = extractChinese(content, filePath, config, textToKeyMap)
 
     // 更新语言包
     keys.forEach(({ key, text }) => {
       config.languages.forEach(lang => {
-        langFiles[lang].content[key] = text // lang === 'zh-CN' ? text : ''
+        // 只在键不存在时添加，避免覆盖已有翻译
+        if (!langFiles[lang].content[key]) {
+          langFiles[lang].content[key] = text // lang === 'zh-CN' ? text : ''
+        }
       })
     })
 
@@ -126,7 +181,7 @@ async function processFile(filePath, langFiles, config) {
 }
 
 // 提取中文并替换
-function extractChinese(content, filePath, config) {
+function extractChinese(content, filePath, config, textToKeyMap) {
   const keys = []
   let newContent = content
 
@@ -140,33 +195,33 @@ function extractChinese(content, filePath, config) {
   if (filePath.endsWith('.vue')) {
     const templateRegex = /(<template>[\s\S]*?<\/template>)/g
     newContent = newContent.replace(templateRegex, (match) => {
-      return processVueTemplate(match, relativePath, keys, config)
+      return processVueTemplate(match, relativePath, keys, config, textToKeyMap)
     })
   }
 
   // 处理JavaScript部分
   const scriptRegex = /(<script[^>]*>[\s\S]*?<\/script>)/g
   newContent = newContent.replace(scriptRegex, (match) => {
-    return processScript(match, relativePath, keys, filePath.endsWith('.vue'), config)
+    return processScript(match, relativePath, keys, filePath.endsWith('.vue'), config, textToKeyMap)
   })
 
   // 处理纯JS文件
   if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) {
-    newContent = processScript(newContent, relativePath, keys, false, config)
+    newContent = processScript(newContent, relativePath, keys, false, config, textToKeyMap)
   }
 
   return { newContent, keys }
 }
 
 // Vue模板处理函数：支持v-bind、双花括号、普通指令中的中文提取
-function processVueTemplate(template, relativePath, keys, config) {
+function processVueTemplate(template, relativePath, keys, config, textToKeyMap) {
   let newTemplate = template
 
   // 1. 处理双花括号插值 ({{ 中文 }})
   const interpolationRegex = /{{\s*([^}]*?[\u4e00-\u9fa5]+[^}]*?)\s*}}/g
   newTemplate = newTemplate.replace(interpolationRegex, (match, text) => {
     if (!text.trim()) return match
-    const key = generateKey(relativePath, text, config)
+    const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
     keys.push({ key, text })
     return `{{ $t('${key}') }}`
   })
@@ -183,7 +238,7 @@ function processVueTemplate(template, relativePath, keys, config) {
     }
 
     if (!text.trim()) return match
-    const key = generateKey(relativePath, text, config)
+    const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
     keys.push({ key, text })
 
     // 关键修改：普通属性需要添加:前缀转换为v-bind
@@ -202,7 +257,7 @@ function processVueTemplate(template, relativePath, keys, config) {
   const directiveRegex = /(v-text|v-html|v-tooltip)\s*=\s*["']([^"']*?[\u4e00-\u9fa5]+[^"']*?)["']/g
   newTemplate = newTemplate.replace(directiveRegex, (match, directive, text) => {
     if (!text.trim()) return match
-    const key = generateKey(relativePath, text, config)
+    const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
     keys.push({ key, text })
     return `${directive}="$t('${key}')"`
   })
@@ -211,7 +266,7 @@ function processVueTemplate(template, relativePath, keys, config) {
   const tagTextRegex = />([^<]*?[\u4e00-\u9fa5]+[^<]*?)</g
   newTemplate = newTemplate.replace(tagTextRegex, (match, text) => {
     if (!text.trim()) return match
-    const key = generateKey(relativePath, text, config)
+    const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
     keys.push({ key, text })
     return `>{{ $t('${key}') }}<`
   })
@@ -221,7 +276,7 @@ function processVueTemplate(template, relativePath, keys, config) {
     const commentRegex = /<!--([\s\S]*?)-->/g
     newTemplate = newTemplate.replace(commentRegex, (match, commentText) => {
       if (!commentText.includes('[\u4e00-\u9fa5]')) return match
-      const key = generateKey(relativePath, commentText, config)
+      const key = getOrGenerateKey(commentText, relativePath, config, textToKeyMap)
       keys.push({ key, text: commentText })
       return `<!-- $t('${key}') -->`
     })
@@ -231,7 +286,7 @@ function processVueTemplate(template, relativePath, keys, config) {
 }
 
 // 处理脚本
-function processScript(script, relativePath, keys, isVueFile, config) {
+function processScript(script, relativePath, keys, isVueFile, config, textToKeyMap) {
   let newScript = script
   let hasTransImport = script.includes(`import { trans } from '${config.vueI18nPath}'`)
 
@@ -243,7 +298,7 @@ function processScript(script, relativePath, keys, isVueFile, config) {
       return match
     }
 
-    const key = generateKey(relativePath, text, config)
+    const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
     keys.push({ key, text })
 
     // 对于Vue组件中的this.t
@@ -269,7 +324,7 @@ function processScript(script, relativePath, keys, isVueFile, config) {
       }
 
       // 模板字符串可能包含表达式，需要特殊处理
-      const key = generateKey(relativePath, text, config)
+      const key = getOrGenerateKey(text, relativePath, config, textToKeyMap)
       keys.push({ key, text })
 
       // 对于Vue组件中的this.t
@@ -334,30 +389,42 @@ function isInExcludedContext(fullText, position) {
   return false
 }
 
-// 生成语言键
-function generateKey(relativePath, text, config) {
+// 获取或生成语言键
+function getOrGenerateKey(text, relativePath, config, textToKeyMap) {
+  // 如果文本已存在于映射中，返回已有键
+  if (textToKeyMap.has(text)) {
+    return textToKeyMap.get(text)
+  }
+
+  // 生成新键
+  let newKey
   if (config.keyGeneration === 'hash') {
     // 使用哈希值作为键
     const crypto = require('crypto')
     const hash = crypto.createHash('md5').update(text).digest('hex')
-    return `${relativePath}.${hash.substring(0, 8)}`
+    newKey = `${relativePath}.${hash.substring(0, 8)}`
+  } else {
+    // 默认使用基于路径的键生成方式
+    // 简化文本，移除特殊字符和空格
+    const simplifiedText = text
+      .trim()
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase()
+
+    // 限制长度
+    const maxLength = 50
+    const truncatedText = simplifiedText.length > maxLength
+      ? simplifiedText.substring(0, maxLength)
+      : simplifiedText
+
+    newKey = `${relativePath}.${truncatedText}`
   }
 
-  // 默认使用基于路径的键生成方式
-  // 简化文本，移除特殊字符和空格
-  const simplifiedText = text
-    .trim()
-    .replace(/[^\w\s]/g, '')
-    .replace(/\s+/g, '_')
-    .toLowerCase()
+  // 保存到映射
+  textToKeyMap.set(text, newKey)
 
-  // 限制长度
-  const maxLength = 50
-  const truncatedText = simplifiedText.length > maxLength
-    ? simplifiedText.substring(0, maxLength)
-    : simplifiedText
-
-  return `${relativePath}.${truncatedText}`
+  return newKey
 }
 
 // 写入语言包文件
