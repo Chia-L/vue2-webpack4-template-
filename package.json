@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.js",
     "build": "node build/build.js",
-    "t": "node i18n-tool/tool.js --config ./i18n-extract.config.js"
+    "trans:inspect": "node i18n-tool/tool.js --config ./i18n-extract.config.js --command inspect",
+    "trans:inspect-merge": "node i18n-tool/tool.js --config ./i18n-extract.config.js --command inspect-merge",
+    "trans": "node i18n-tool/tool.js --config ./i18n-extract.config.js"
   },
   "dependencies": {
     "amfe-flexible": "^2.2.1",
@@ -13,6 +15,7 @@
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.19.0",
     "chokidar": "^3.5.1",
+    "crc-32": "^1.2.2",
     "echarts": "5.3.2",
     "element-ui": "^2.12.0",
     "es6-promise": "^4.2.8",
