@@ -295,7 +295,7 @@ async function processFile(filePath, isInspectMode = false) {
           const baselineKeys = state.baselineKeys.get(lang) || new Set()
 
           if (!mainKeys.has(key) && !existingKeys.has(key) && !baselineKeys.has(key)) {
-            langFile.content[key] =  text
+            langFile.content[key] = text
           }
         }
         // 普通模式和合并模式：只添加不在主目录的key
@@ -430,7 +430,7 @@ function processScript(script, keys, isVueFile) {
   }
 
   // 添加导入语句
-  if (!isVueFile && hasTransImport && !script.includes(`import { trans } from '${state.config.vueI18nPath}'`)) {
+  if (!isVueFile && !hasTransImport && !script.includes(`import { trans } from '${state.config.vueI18nPath}'`)) {
     newScript = `import { trans } from '${state.config.vueI18nPath}';\n` + newScript
   }
 
