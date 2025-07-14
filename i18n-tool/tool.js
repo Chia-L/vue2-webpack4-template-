@@ -402,6 +402,7 @@ function processVueTemplate(template, keys) {
 function processScript(script, keys, isVueFile) {
   let newScript = script
   let hasTransImport = script.includes(`import { trans } from '${state.config.vueI18nPath}'`)
+  let needImportTrans  = false
 
   // 处理普通字符串
   newScript = newScript.replace(
@@ -411,7 +412,13 @@ function processScript(script, keys, isVueFile) {
       const cleanText = cleanTextForTranslation(text)
       const key = getOrGenerateKey(cleanText)
       keys.push({ key, text: cleanText })
-      return isVueFile ? `this.$t('${key}')` : `trans('${key}')`
+      if (isVueFile) {
+        needImportTrans = false
+        return `this.$t('${key}')`
+      } else {
+        needImportTrans = true
+        return (`trans('${key}')`)
+      }
     }
   )
 
@@ -424,13 +431,19 @@ function processScript(script, keys, isVueFile) {
         const cleanText = cleanTextForTranslation(text)
         const key = getOrGenerateKey(cleanText)
         keys.push({ key, text: cleanText })
-        return isVueFile ? `\`\${this.$t('${key}')}\`` : `\`\${trans('${key}')}\``
+        if (isVueFile) {
+          needImportTrans = false
+          return `\`\${this.$t('${key}')}\``
+        } else {
+          needImportTrans = true
+          return `\`\${trans('${key}')}\``
+        }
       }
     )
   }
 
   // 添加导入语句
-  if (!isVueFile && !hasTransImport && !script.includes(`import { trans } from '${state.config.vueI18nPath}'`)) {
+  if (!isVueFile && !hasTransImport && needImportTrans) {
     newScript = `import { trans } from '${state.config.vueI18nPath}';\n` + newScript
   }
 

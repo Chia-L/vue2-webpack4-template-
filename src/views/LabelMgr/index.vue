@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-text="$t('标签管理todo')"></div>
+    <div v-text="标签管理todo"></div>
     <el-date-picker
       v-model="time"
       type="datetime"
